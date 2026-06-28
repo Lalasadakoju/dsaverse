@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Linked List - DSA Visualizer</title>
+  <style>
+    body { background:#0d0d0d; color:#f0f0f0; font-family:'Segoe UI',sans-serif; margin:0; }
+    header { background:#1f1f1f; padding:20px; text-align:center; font-size:28px; font-weight:bold; color:#4caf50; }
+    section { padding:20px; margin:20px; background:#1e1e1e; border-radius:12px; }
+    h2 { color:#4caf50; }
+    .timeline { display:flex; gap:20px; overflow-x:auto; padding:10px; }
+    .event { background:#333; padding:15px; border-radius:8px; min-width:150px; text-align:center; }
+    .visualizer {
+      border:2px solid #4caf50;
+      padding:20px;
+      min-height:120px;
+      display:flex;
+      flex-direction:row;
+      align-items:center;
+      gap:10px;
+      margin:auto;
+      width:90%;
+      justify-content:flex-start;
+      flex-wrap:wrap;
+    }
+    .node {
+      background:#4caf50;
+      color:#000;
+      padding:10px;
+      border-radius:4px;
+      min-width:60px;
+      text-align:center;
+      position:relative;
+      transition: all 0.5s ease;
+    }
+    .arrow { color:#fff; font-weight:bold; margin:0 5px; }
+    .inserted { transform: scale(1.2); background:#2196f3 !important; color:#fff; }
+    .deleted { opacity:0; background:#f44336 !important; color:#fff; }
+    .highlight { background:#ffeb3b !important; color:#000; }
+    .operations { margin-top:10px; text-align:center; }
+    .operations input { padding:8px; margin-right:10px; border-radius:4px; border:none; }
+    .operations button { margin:5px; padding:10px; background:#2196f3; border:none; color:#fff; border-radius:4px; cursor:pointer; }
+    .badges span { display:inline-block; margin:5px; padding:8px 12px; border-radius:8px; font-size:14px; color:#fff; }
+    .green { background:#4caf50; }
+    .yellow { background:#ff9800; }
+    .red { background:#f44336; }
+    .code-tabs { display:flex; gap:10px; margin-bottom:10px; }
+    .code-tabs button { background:#333; color:#fff; border:none; padding:8px 12px; cursor:pointer; border-radius:4px; }
+    pre { background:#000; padding:10px; border-radius:6px; overflow-x:auto; }
+    .nav-icons {
+      display: flex;
+      justify-content: center; /* centers horizontally */
+      gap: 20px;               /* space between buttons */
+      margin: 15px 0;
+    }
+
+    .nav-icons a {
+      padding: 10px 18px;
+      background: #222;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .nav-icons a:hover {
+      background: #00bcd4;
+      color: #000;
+      transform: scale(1.05); /* subtle hover effect */
+    }
+
+  </style>
+</head>
+<body>
+  <header>🔗 Linked List</header>
+   <div class="nav-icons">
+    <a href="index.html">🏠 Home</a>
+    <a href="javascript:history.back()">🔙 Back</a>
+  </div>
+
+  <section>
+    <h2>Introduction</h2>
+    <p>A linked list is a linear data structure where elements (nodes) are connected using pointers. Each node contains data and a reference to the next node.</p>
+  </section>
+
+  <section>
+    <h2>History</h2>
+    <div class="timeline">
+      <div class="event">1950s<br>Early pointer structures</div>
+      <div class="event">1960s<br>Used in Lisp</div>
+      <div class="event">1980s<br>Dynamic memory management</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Interactive Visualization</h2>
+    <div class="visualizer" id="linkedListVisualizer"></div>
+    <div class="operations">
+      <input type="text" id="listInput" placeholder="Enter element">
+      <button onclick="insertNode()">Insert</button>
+      <button onclick="deleteNode()">Delete Last</button>
+      <button onclick="searchNode()">Search</button>
+      <button onclick="displayList()">Display</button>
+    </div>
+    <p id="listOutput"></p>
+  </section>
+
+  <section>
+    <h2>Time & Space Complexity</h2>
+    <div class="badges">
+      <span class="yellow">Access: O(n)</span>
+      <span class="green">Insert: O(1)</span>
+      <span class="green">Delete: O(1)</span>
+      <span class="yellow">Search: O(n)</span>
+      <span class="yellow">Space: O(n)</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Real-world Applications</h2>
+    <ul>
+      <li>Dynamic memory allocation</li>
+      <li>Implementing stacks and queues</li>
+      <li>Polynomial arithmetic</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Code Snippets</h2>
+    <div class="code-tabs">
+      <button onclick="showCode('cpp')">C++</button>
+      <button onclick="showCode('java')">Java</button>
+      <button onclick="showCode('python')">Python</button>
+      <button onclick="showCode('js')">JavaScript</button>
+    </div>
+    <pre id="codeBlock">Click a language tab to view code</pre>
+  </section>
+
+  <script>
+    let linkedList = [];
+
+    function renderList() {
+      const container = document.getElementById('linkedListVisualizer');
+      container.innerHTML = '';
+      linkedList.forEach((el, i) => {
+        const node = document.createElement('div');
+        node.className = 'node';
+        node.textContent = el;
+        container.appendChild(node);
+        if(i < linkedList.length - 1) {
+          const arrow = document.createElement('span');
+          arrow.className = 'arrow';
+          arrow.textContent = '→';
+          container.appendChild(arrow);
+        }
+      });
+    }
+
+    function insertNode() {
+      const value = document.getElementById("listInput").value;
+      if(value === "") return;
+      linkedList.push(value);
+      renderList();
+      const container = document.getElementById('linkedListVisualizer');
+      container.lastChild.classList.add("inserted");
+      setTimeout(() => container.lastChild.classList.remove("inserted"), 1000);
+      document.getElementById("listOutput").innerText = value + " inserted → [" + linkedList.join(" -> ") + "]";
+      document.getElementById("listInput").value = "";
+    }
+
+    function deleteNode() {
+      if(linkedList.length > 0) {
+        let removed = linkedList.pop();
+        renderList();
+        document.getElementById("listOutput").innerText = removed + " deleted → [" + linkedList.join(" -> ") + "]";
+      } else {
+        document.getElementById("listOutput").innerText = "List is empty!";
+      }
+    }
+
+    function searchNode() {
+      const value = document.getElementById("listInput").value;
+      if(value === "") return;
+      let found = false;
+      const container = document.getElementById('linkedListVisualizer');
+      [...container.children].forEach((div) => {
+        div.classList.remove("highlight");
+        if(div.classList.contains("node") && div.textContent === value) {
+          div.classList.add("highlight");
+          document.getElementById("listOutput").innerText = value + " found!";
+          found = true;
+        }
+      });
+      if(!found) {
+        document.getElementById("listOutput").innerText = value + " not found!";
+      }
+      document.getElementById("listInput").value = "";
+    }
+
+    function displayList() {
+      const container = document.getElementById('linkedListVisualizer');
+      let i = 0;
+      const nodes = [...container.children].filter(div => div.classList.contains("node"));
+      const interval = setInterval(() => {
+        if(i < nodes.length) {
+          nodes[i].classList.add("highlight");
+          setTimeout(() => nodes[i].classList.remove("highlight"), 500);
+          i++;
+        } else {
+          clearInterval(interval);
+        }
+      }, 600);
+      document.getElementById("listOutput").innerText = "Linked List → [" + linkedList.join(" -> ") + "]";
+    }
+
+    const codes = {
+      cpp: `// Linked List in C++
+#include <iostream>
+using namespace std;
+struct Node {
+    int data;
+    Node* next;
+};
+int main() {
+    Node* head = new Node{10, nullptr};
+    head->next = new Node{20, nullptr};
+    cout << head->data << " -> " << head->next->data;
+    return 0;
+}`,
+      java: `// Linked List in Java
+class Node {
+    int data;
+    Node next;
+    Node(int d) { data = d; next = null; }
+}
+public class LinkedListExample {
+    public static void main(String[] args) {
+        Node head = new Node(10);
+        head.next = new Node(20);
+        System.out.println(head.data + " -> " + head.next.data);
+    }
+}`,
+      python: `# Linked List in Python
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+head = Node(10)
+head.next = Node(20)
+print(head.data, "->", head.next.data)`,
+      js: `// Linked List in JavaScript
+class Node {
+  constructor(data) {
+    this.data = data;
+    this.next = null;
+  }
+}
+let head = new Node(10);
+head.next = new Node(20);
+console.log(head.data + " -> " + head.next.data);`
+    };
+
+    function showCode(lang) {
+      document.getElementById("codeBlock").textContent = codes[lang];
+    }
+  </script>
+</body>
+</html>

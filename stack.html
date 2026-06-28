@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stack - DSA Visualizer</title>
+  <style>
+    body { background:#0d0d0d; color:#f0f0f0; font-family:'Segoe UI',sans-serif; margin:0; }
+    header { background:#1f1f1f; padding:20px; text-align:center; font-size:28px; font-weight:bold; color:#9c27b0; }
+    section { padding:20px; margin:20px; background:#1e1e1e; border-radius:12px; }
+    h2 { color:#ff9800; }
+    .timeline { display:flex; gap:20px; overflow-x:auto; padding:10px; }
+    .event { background:#333; padding:15px; border-radius:8px; min-width:150px; text-align:center; }
+    /* Stack visualization arranged vertically */
+    .visualizer {
+      border:2px solid #9c27b0;
+      padding:20px;
+      min-height:200px;
+      display:flex;
+      flex-direction:column-reverse; /* newest element at top */
+      align-items:center;
+      gap:5px;
+      width:120px;
+      margin:auto;
+    }
+    .stack-element {
+      background:#673ab7;
+      color:#fff;
+      padding:10px;
+      border-radius:4px;
+      width:100%;
+      text-align:center;
+    }
+    .operations { margin-top:10px; text-align:center; }
+    .operations input { padding:8px; margin-right:10px; border-radius:4px; border:none; }
+    .operations button { margin:5px; padding:10px; background:#2196f3; border:none; color:#fff; border-radius:4px; cursor:pointer; }
+    .badges span { display:inline-block; margin:5px; padding:8px 12px; border-radius:8px; font-size:14px; color:#fff; }
+    .green { background:#4caf50; }
+    .yellow { background:#ff9800; }
+    .red { background:#f44336; }
+    .code-tabs { display:flex; gap:10px; margin-bottom:10px; }
+    .code-tabs button { background:#333; color:#fff; border:none; padding:8px 12px; cursor:pointer; border-radius:4px; }
+    pre { background:#000; padding:10px; border-radius:6px; overflow-x:auto; }
+    .nav-icons {
+      display: flex;
+      justify-content: center; /* centers horizontally */
+      gap: 20px;               /* space between buttons */
+      margin: 15px 0;
+    }
+
+    .nav-icons a {
+      padding: 10px 18px;
+      background: #222;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .nav-icons a:hover {
+      background: #00bcd4;
+      color: #000;
+      transform: scale(1.05); /* subtle hover effect */
+    }
+
+  </style>
+</head>
+<body>
+  <header>📚 Stack</header>
+   <div class="nav-icons">
+    <a href="index.html">🏠 Home</a>
+    <a href="javascript:history.back()">🔙 Back</a>
+  </div>
+
+  <section>
+    <h2>Introduction</h2>
+    <p>A stack is a linear data structure that follows the LIFO (Last In First Out) principle.</p>
+  </section>
+
+  <section>
+    <h2>History</h2>
+    <div class="timeline">
+      <div class="event">1950s<br>Recursion concept</div>
+      <div class="event">1960s<br>Function call stack</div>
+      <div class="event">1980s<br>Undo operations</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Interactive Visualization</h2>
+    <label>Set Stack Size: </label>
+    <input type="number" id="stackSize" placeholder="Enter size" min="1">
+    <button onclick="setSize()">Set Size</button>
+    <div class="visualizer" id="stackVisualizer"></div>
+    <div class="operations">
+      <input type="text" id="stackInput" placeholder="Enter element">
+      <button onclick="pushElement()">Push</button>
+      <button onclick="popElement()">Pop</button>
+      <button onclick="peekElement()">Peek</button>
+      <button onclick="displayStack()">Display</button>
+    </div>
+    <p id="stackOutput"></p>
+  </section>
+
+  <section>
+    <h2>Time & Space Complexity</h2>
+    <div class="badges">
+      <span class="green">Push: O(1)</span>
+      <span class="green">Pop: O(1)</span>
+      <span class="yellow">Space: O(n)</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Real-world Applications</h2>
+    <ul>
+      <li>Undo functionality in editors</li>
+      <li>Expression evaluation</li>
+      <li>Function call management</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Code Snippets</h2>
+    <div class="code-tabs">
+      <button onclick="showCode('cpp')">C++</button>
+      <button onclick="showCode('java')">Java</button>
+      <button onclick="showCode('python')">Python</button>
+      <button onclick="showCode('js')">JavaScript</button>
+    </div>
+    <pre id="codeBlock">Click a language tab to view code</pre>
+  </section>
+
+  <script>
+    let stack = [];
+    let maxSize = 0;
+
+    function setSize() {
+      const size = document.getElementById("stackSize").value;
+      if(size > 0) {
+        maxSize = parseInt(size);
+        stack = [];
+        renderStack();
+        document.getElementById("stackOutput").innerText = "Stack size set to " + maxSize;
+      } else {
+        alert("Please enter a valid size!");
+      }
+    }
+
+    function renderStack() {
+      const container = document.getElementById('stackVisualizer');
+      container.innerHTML = '';
+      stack.forEach(el => {
+        const div = document.createElement('div');
+        div.className = 'stack-element';
+        div.textContent = el;
+        container.appendChild(div);
+      });
+    }
+
+    function pushElement() {
+      const value = document.getElementById("stackInput").value;
+      if(value === "") return;
+      if(stack.length < maxSize) {
+        stack.push(value);
+        renderStack();
+        document.getElementById("stackOutput").innerText = value + " pushed → [" + stack.join(", ") + "]";
+      } else {
+        document.getElementById("stackOutput").innerText = "Stack Overflow! Max size = " + maxSize;
+      }
+      document.getElementById("stackInput").value = "";
+    }
+
+    function popElement() {
+      if(stack.length > 0) {
+        let removed = stack.pop();
+        renderStack();
+        document.getElementById("stackOutput").innerText = removed + " popped → [" + stack.join(", ") + "]";
+      } else {
+        document.getElementById("stackOutput").innerText = "Stack is empty!";
+      }
+    }
+
+    function peekElement() {
+      if(stack.length > 0) {
+        document.getElementById("stackOutput").innerText = "Top element → " + stack[stack.length - 1];
+      } else {
+        document.getElementById("stackOutput").innerText = "Stack is empty!";
+      }
+    }
+
+    function displayStack() {
+      document.getElementById("stackOutput").innerText = "Stack → [" + stack.join(", ") + "]";
+    }
+
+    const codes = {
+      cpp: `// Stack using array
+class Stack {
+  int arr[100], top;
+public:
+  Stack() { top = -1; }
+  void push(int x) { arr[++top] = x; }
+  int pop() { return arr[top--]; }
+};`,
+      java: `class Stack {
+  int arr[] = new int[100];
+  int top = -1;
+  void push(int x) { arr[++top] = x; }
+  int pop() { return arr[top--]; }
+}`,
+      python: `class Stack:
+  def __init__(self):
+    self.stack = []
+  def push(self, x):
+    self.stack.append(x)
+  def pop(self):
+    return self.stack.pop()`,
+      js: `class Stack {
+  constructor() { this.items = []; }
+  push(x) { this.items.push(x); }
+  pop() { return this.items.pop(); }
+}`
+    };
+
+    function showCode(lang) {
+      document.getElementById("codeBlock").textContent = codes[lang];
+    }
+  </script>
+</body>
+</html>

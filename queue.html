@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Queue - DSA Visualizer</title>
+  <style>
+    body { background:#0d0d0d; color:#f0f0f0; font-family:'Segoe UI',sans-serif; margin:0; }
+    header { background:#1f1f1f; padding:20px; text-align:center; font-size:28px; font-weight:bold; color:#2196f3; }
+    section { padding:20px; margin:20px; background:#1e1e1e; border-radius:12px; }
+    h2 { color:#ff9800; }
+    .timeline { display:flex; gap:20px; overflow-x:auto; padding:10px; }
+    .event { background:#333; padding:15px; border-radius:8px; min-width:150px; text-align:center; }
+    /* Queue visualization arranged horizontally */
+    .visualizer {
+      border:2px solid #2196f3;
+      padding:20px;
+      min-height:120px;
+      display:flex;
+      flex-direction:row;
+      align-items:center;
+      gap:10px;
+      margin:auto;
+      width:80%;
+      justify-content:flex-start;
+    }
+    .queue-element {
+      background:#2196f3;
+      color:#fff;
+      padding:10px;
+      border-radius:4px;
+      min-width:60px;
+      text-align:center;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .operations { margin-top:10px; text-align:center; }
+    .operations input { padding:8px; margin-right:10px; border-radius:4px; border:none; }
+    .operations button { margin:5px; padding:10px; background:#673ab7; border:none; color:#fff; border-radius:4px; cursor:pointer; }
+    .badges span { display:inline-block; margin:5px; padding:8px 12px; border-radius:8px; font-size:14px; color:#fff; }
+    .green { background:#4caf50; }
+    .yellow { background:#ff9800; }
+    .red { background:#f44336; }
+    .code-tabs { display:flex; gap:10px; margin-bottom:10px; }
+    .code-tabs button { background:#333; color:#fff; border:none; padding:8px 12px; cursor:pointer; border-radius:4px; }
+    pre { background:#000; padding:10px; border-radius:6px; overflow-x:auto; }
+    .nav-icons {
+      display: flex;
+      justify-content: center; /* centers horizontally */
+      gap: 20px;               /* space between buttons */
+      margin: 15px 0;
+    }
+
+    .nav-icons a {
+      padding: 10px 18px;
+      background: #222;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .nav-icons a:hover {
+      background: #00bcd4;
+      color: #000;
+      transform: scale(1.05); /* subtle hover effect */
+    }
+
+  </style>
+</head>
+<body>
+  <header>🚆 Queue</header>
+   <div class="nav-icons">
+    <a href="index.html">🏠 Home</a>
+    <a href="javascript:history.back()">🔙 Back</a>
+  </div>
+
+  <section>
+    <h2>Introduction</h2>
+    <p>A queue is a linear data structure that follows the FIFO (First In First Out) principle.</p>
+  </section>
+
+  <section>
+    <h2>History</h2>
+    <div class="timeline">
+      <div class="event">1960s<br>Job scheduling</div>
+      <div class="event">1970s<br>Printer queues</div>
+      <div class="event">1990s<br>Network packet handling</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Interactive Visualization</h2>
+    <label>Set Queue Size: </label>
+    <input type="number" id="queueSize" placeholder="Enter size" min="1">
+    <button onclick="setSize()">Set Size</button>
+    <div class="visualizer" id="queueVisualizer"></div>
+    <div class="operations">
+      <input type="text" id="queueInput" placeholder="Enter element">
+      <button onclick="enqueue()">Enqueue</button>
+      <button onclick="dequeue()">Dequeue</button>
+      <button onclick="peekQueue()">Peek</button>
+      <button onclick="displayQueue()">Display</button>
+    </div>
+    <p id="queueOutput"></p>
+  </section>
+
+  <section>
+    <h2>Time & Space Complexity</h2>
+    <div class="badges">
+      <span class="green">Enqueue: O(1)</span>
+      <span class="green">Dequeue: O(1)</span>
+      <span class="yellow">Space: O(n)</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Real-world Applications</h2>
+    <ul>
+      <li>Job scheduling</li>
+      <li>Printer task management</li>
+      <li>Network packet handling</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Code Snippets</h2>
+    <div class="code-tabs">
+      <button onclick="showCode('cpp')">C++</button>
+      <button onclick="showCode('java')">Java</button>
+      <button onclick="showCode('python')">Python</button>
+      <button onclick="showCode('js')">JavaScript</button>
+    </div>
+    <pre id="codeBlock">Click a language tab to view code</pre>
+  </section>
+
+  <script>
+    let queue = [];
+    let maxSize = 0;
+
+    function setSize() {
+      const size = document.getElementById("queueSize").value;
+      if(size > 0) {
+        maxSize = parseInt(size);
+        queue = [];
+        renderQueue();
+        document.getElementById("queueOutput").innerText = "Queue size set to " + maxSize;
+      } else {
+        alert("Please enter a valid size!");
+      }
+    }
+
+    function renderQueue() {
+      const container = document.getElementById('queueVisualizer');
+      container.innerHTML = '';
+      queue.forEach(el => {
+        const div = document.createElement('div');
+        div.className = 'queue-element';
+        div.textContent = el;
+        container.appendChild(div);
+      });
+    }
+
+    function enqueue() {
+      const value = document.getElementById("queueInput").value;
+      if(value === "") return;
+      if(queue.length < maxSize) {
+        queue.push(value);
+        renderQueue();
+        document.getElementById("queueOutput").innerText = value + " enqueued → [" + queue.join(", ") + "]";
+      } else {
+        document.getElementById("queueOutput").innerText = "Queue Overflow! Max size = " + maxSize;
+      }
+      document.getElementById("queueInput").value = "";
+    }
+
+    function dequeue() {
+      if(queue.length > 0) {
+        let removed = queue.shift();
+        renderQueue();
+        document.getElementById("queueOutput").innerText = removed + " dequeued → [" + queue.join(", ") + "]";
+      } else {
+        document.getElementById("queueOutput").innerText = "Queue is empty!";
+      }
+    }
+
+    function peekQueue() {
+      if(queue.length > 0) {
+        document.getElementById("queueOutput").innerText = "Front element → " + queue[0];
+      } else {
+        document.getElementById("queueOutput").innerText = "Queue is empty!";
+      }
+    }
+
+    function displayQueue() {
+      document.getElementById("queueOutput").innerText = "Queue → [" + queue.join(", ") + "]";
+    }
+
+    const codes = {
+      cpp: `// Queue using array
+class Queue {
+  int arr[100], front, rear;
+public:
+  Queue() { front = 0; rear = -1; }
+  void enqueue(int x) { arr[++rear] = x; }
+  int dequeue() { return arr[front++]; }
+};`,
+      java: `class Queue {
+  int arr[] = new int[100];
+  int front = 0, rear = -1;
+  void enqueue(int x) { arr[++rear] = x; }
+  int dequeue() { return arr[front++]; }
+}`,
+      python: `class Queue:
+  def __init__(self):
+    self.queue = []
+  def enqueue(self, x):
+    self.queue.append(x)
+  def dequeue(self):
+    return self.queue.pop(0)`,
+      js: `class Queue {
+  constructor() { this.items = []; }
+  enqueue(x) { this.items.push(x); }
+  dequeue() { return this.items.shift(); }
+}`
+    };
+
+    function showCode(lang) {
+      document.getElementById("codeBlock").textContent = codes[lang];
+    }
+  </script>
+</body>
+</html>

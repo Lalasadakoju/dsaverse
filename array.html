@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Array - DSA Visualizer</title>
+  <style>
+    body { background:#0d0d0d; color:#f0f0f0; font-family:'Segoe UI',sans-serif; margin:0; }
+    header { background:#1f1f1f; padding:20px; text-align:center; font-size:28px; font-weight:bold; color:#ff9800; }
+    section { padding:20px; margin:20px; background:#1e1e1e; border-radius:12px; }
+    h2 { color:#ff9800; }
+    .timeline { display:flex; gap:20px; overflow-x:auto; padding:10px; }
+    .event { background:#333; padding:15px; border-radius:8px; min-width:150px; text-align:center; }
+    .visualizer {
+      border:2px solid #ff9800;
+      padding:20px;
+      min-height:120px;
+      display:flex;
+      flex-direction:row;
+      align-items:flex-end;
+      gap:10px;
+      margin:auto;
+      width:90%;
+      justify-content:flex-start;
+    }
+    .array-element {
+      background:#ff9800;
+      color:#000;
+      padding:10px;
+      border-radius:4px;
+      min-width:60px;
+      text-align:center;
+      position:relative;
+      transition: all 0.5s ease;
+    }
+    .index-label {
+      position:absolute;
+      bottom:-20px;
+      left:0;
+      width:100%;
+      text-align:center;
+      font-size:12px;
+      color:#ccc;
+    }
+    .inserted { transform: translateY(-15px); background:#4caf50 !important; color:#fff; }
+    .deleted { opacity:0; background:#f44336 !important; color:#fff; }
+    .highlight { background:#ffeb3b !important; color:#000; }
+    .operations { margin-top:10px; text-align:center; }
+    .operations input { padding:8px; margin-right:10px; border-radius:4px; border:none; }
+    .operations button { margin:5px; padding:10px; background:#2196f3; border:none; color:#fff; border-radius:4px; cursor:pointer; }
+    .badges span { display:inline-block; margin:5px; padding:8px 12px; border-radius:8px; font-size:14px; color:#fff; }
+    .green { background:#4caf50; }
+    .yellow { background:#ff9800; }
+    .red { background:#f44336; }
+    .code-tabs { display:flex; gap:10px; margin-bottom:10px; }
+    .code-tabs button { background:#333; color:#fff; border:none; padding:8px 12px; cursor:pointer; border-radius:4px; }
+    pre { background:#000; padding:10px; border-radius:6px; overflow-x:auto; }
+    .nav-icons {
+      display: flex;
+      justify-content: center; /* centers horizontally */
+      gap: 20px;               /* space between buttons */
+      margin: 15px 0;
+    }
+
+    .nav-icons a {
+      padding: 10px 18px;
+      background: #222;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .nav-icons a:hover {
+      background: #00bcd4;
+      color: #000;
+      transform: scale(1.05); /* subtle hover effect */
+    }
+
+  </style>
+</head>
+<body>
+  <header>📦 Array</header>
+   <div class="nav-icons">
+    <a href="index.html">🏠 Home</a>
+    <a href="javascript:history.back()">🔙 Back</a>
+  </div>
+
+  <section>
+    <h2>Introduction</h2>
+    <p>An array is a collection of elements stored at contiguous memory locations, allowing random access by index.</p>
+  </section>
+
+  <section>
+    <h2>History</h2>
+    <div class="timeline">
+      <div class="event">1950s<br>Fortran arrays</div>
+      <div class="event">1960s<br>C language arrays</div>
+      <div class="event">1980s<br>Dynamic arrays</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Interactive Visualization</h2>
+    <label>Set Array Size: </label>
+    <input type="number" id="arraySize" placeholder="Enter size" min="1">
+    <button onclick="setSize()">Set Size</button>
+    <div class="visualizer" id="arrayVisualizer"></div>
+    <div class="operations">
+      <input type="text" id="arrayInput" placeholder="Enter element">
+      <input type="number" id="arrayIndex" placeholder="Index" min="0">
+      <button onclick="insertElement()">Insert</button>
+      <button onclick="deleteElement()">Delete</button>
+      <button onclick="searchElement()">Search</button>
+      <button onclick="displayArray()">Display</button>
+    </div>
+    <p id="arrayOutput"></p>
+  </section>
+
+  <section>
+    <h2>Time & Space Complexity</h2>
+    <div class="badges">
+      <span class="green">Access: O(1)</span>
+      <span class="yellow">Insert/Delete: O(n)</span>
+      <span class="yellow">Search: O(n)</span>
+      <span class="yellow">Space: O(n)</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Real-world Applications</h2>
+    <ul>
+      <li>Storing fixed-size data</li>
+      <li>Matrix representation</li>
+      <li>Lookup tables</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Code Snippets</h2>
+    <div class="code-tabs">
+      <button onclick="showCode('cpp')">C++</button>
+      <button onclick="showCode('java')">Java</button>
+      <button onclick="showCode('python')">Python</button>
+      <button onclick="showCode('js')">JavaScript</button>
+    </div>
+    <pre id="codeBlock">Click a language tab to view code</pre>
+  </section>
+
+  <script>
+    let arr = [];
+    let maxSize = 0;
+
+    function setSize() {
+      const size = document.getElementById("arraySize").value;
+      if(size > 0) {
+        maxSize = parseInt(size);
+        arr = new Array(maxSize).fill(null);
+        renderArray();
+        document.getElementById("arrayOutput").innerText = "Array size set to " + maxSize;
+      } else {
+        alert("Please enter a valid size!");
+      }
+    }
+
+    function renderArray() {
+      const container = document.getElementById('arrayVisualizer');
+      container.innerHTML = '';
+      arr.forEach((el, i) => {
+        const div = document.createElement('div');
+        div.className = 'array-element';
+        div.textContent = el !== null ? el : "";
+        const index = document.createElement('div');
+        index.className = 'index-label';
+        index.textContent = i;
+        div.appendChild(index);
+        container.appendChild(div);
+      });
+    }
+
+    function insertElement() {
+      const value = document.getElementById("arrayInput").value;
+      const index = document.getElementById("arrayIndex").value;
+      if(value === "" || index === "") return;
+      if(index >= 0 && index < maxSize) {
+        arr[index] = value;
+        renderArray();
+        const container = document.getElementById('arrayVisualizer');
+        container.children[index].classList.add("inserted");
+        setTimeout(() => container.children[index].classList.remove("inserted"), 1000);
+        document.getElementById("arrayOutput").innerText = value + " inserted at index " + index;
+      } else {
+        document.getElementById("arrayOutput").innerText = "Invalid index!";
+      }
+      document.getElementById("arrayInput").value = "";
+      document.getElementById("arrayIndex").value = "";
+    }
+
+    function deleteElement() {
+      const index = document.getElementById("arrayIndex").value;
+      if(index === "") return;
+      if(index >= 0 && index < maxSize) {
+        let removed = arr[index];
+        arr[index] = null;
+        renderArray();
+        const container = document.getElementById('arrayVisualizer');
+        container.children[index].classList.add("deleted");
+        setTimeout(() => container.children[index].classList.remove("deleted"), 1000);
+        document.getElementById("arrayOutput").innerText = removed + " deleted from index " + index;
+      } else {
+        document.getElementById("arrayOutput").innerText = "Invalid index!";
+      }
+      document.getElementById("arrayIndex").value = "";
+    }
+
+    function searchElement() {
+      const value = document.getElementById("arrayInput").value;
+      if(value === "") return;
+      let found = false;
+      const container = document.getElementById('arrayVisualizer');
+      [...container.children].forEach((div, i) => {
+        div.classList.remove("highlight");
+        if(arr[i] === value) {
+          div.classList.add("highlight");
+          document.getElementById("arrayOutput").innerText = value + " found at index " + i;
+          found = true;
+        }
+      });
+      if(!found) {
+        document.getElementById("arrayOutput").innerText = value + " not found!";
+      }
+      document.getElementById("arrayInput").value = "";
+    }
+
+        function displayArray() {
+      const container = document.getElementById('arrayVisualizer');
+      let i = 0;
+      const interval = setInterval(() => {
+        if(i < container.children.length) {
+          container.children[i].classList.add("highlight");
+          setTimeout(() => container.children[i].classList.remove("highlight"), 500);
+          i++;
+        } else {
+          clearInterval(interval);
+        }
+      }, 600);
+      document.getElementById("arrayOutput").innerText =
+        "Array → [" + arr.map(el => el !== null ? el : "").join(", ") + "]";
+    }
+
+    const codes = {
+      cpp: `// Array operations in C++
+#include <iostream>
+using namespace std;
+int main() {
+    int arr[100];
+    arr[0] = 10; arr[1] = 20; arr[2] = 30;
+    int x = arr[0];
+    cout << "Accessed element: " << x << endl;
+    arr[1] = 50; arr[2] = 0;
+    for(int i=0; i<5; i++) cout << "Index " << i << " -> " << arr[i] << endl;
+    return 0;
+}`,
+
+      java: `// Array operations in Java
+public class ArrayExample {
+    public static void main(String[] args) {
+        int[] arr = new int[100];
+        arr[0] = 10; arr[1] = 20; arr[2] = 30;
+        int x = arr[0];
+        System.out.println("Accessed element: " + x);
+        arr[1] = 50; arr[2] = 0;
+        for(int i=0; i<5; i++) {
+            System.out.println("Index " + i + " -> " + arr[i]);
+        }
+    }
+}`,
+
+      python: `# Array operations in Python
+arr = [None]*100
+arr[0] = 10; arr[1] = 20; arr[2] = 30
+x = arr[0]
+print("Accessed element:", x)
+arr[1] = 50; arr[2] = 0
+for i in range(5):
+    print("Index", i, "->", arr[i])`,
+
+      js: `// Array operations in JavaScript
+let arr = new Array(100);
+arr[0] = 10; arr[1] = 20; arr[2] = 30;
+let x = arr[0];
+console.log("Accessed element:", x);
+arr[1] = 50; arr[2] = 0;
+for (let i = 0; i < 5; i++) {
+  console.log("Index " + i + " -> " + arr[i]);
+}`
+    };
+
+    function showCode(lang) {
+      document.getElementById("codeBlock").textContent = codes[lang];
+    }
+  </script>
+</body>
+</html>
